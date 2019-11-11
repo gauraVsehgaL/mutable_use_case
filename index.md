@@ -50,3 +50,4 @@ Or you could mark `AbstractedLock` as `mutable`.
 
 ```
 mutable Lock AbstractedLock;
+```
