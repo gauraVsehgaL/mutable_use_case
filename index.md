@@ -44,7 +44,7 @@ class ProtectMyResource
  All well, but this does not compile. Since `GetResourceValue()` is marked as `const` and it is modifying member variables.
  `AbstractedLock.LockShared()` when called is going to make some changes to the underlying structure which breaks const.
 
-Now you could either not mark `GetResourceValue()` as `const`, but then the intent of not modifying the members through this functions is lost.
+Now you could either not mark `GetResourceValue()` as `const`, but then the intent of not modifying the members through this function is lost.
 
 Or you could mark `AbstractedLock` as `mutable`.
 
