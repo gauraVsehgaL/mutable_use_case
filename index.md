@@ -1,37 +1,52 @@
-## Welcome to GitHub Pages
+## Real world use case of mutable keyword in C++.
 
-You can use the [editor on GitHub](https://github.com/gauraVsehgaL/mutable_use_case/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+For introduction, you can use `mutable` keyword to mark member variables which can then be modified from `const` member methods as well.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+I never actually used this until I came across the below use case.
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+**Consider there is a Lock class which exposes interfaces to lock the underlyig resource exclusively for writes or shared for read access.**
+```
+Class Lock
+{
+  ...
+  public:
+  LockExclusive(){...}
+  LockShared(){...}
+  ReleaseLock(){...}
+};
+```
+**And you have an encapsulator for a very important resource.**
+```
+class ProtectMyResource
+{
+  private:
+  int VeryVeryPrivateResource;
+  Lock AbstractedLock;
+  //Other members.
+  
+  public:
+  void SetResource(int NewValue)  //This member is obviously modifying members and the intent is clear as well, so not marked as const.
+  {
+    AbstractedLock.LockExcluive();
+    VeryVeryPrivateResource = NewValue;
+    AbstractedLock.ReleaseLock();
+  }
+  
+  void GetResourceValue(int &BackDoor) const //There is no intent to modify the members within this method, so marked as const.
+  {
+    AbstractedLock.LockShared();
+    BackDoor = VeryVeryPrivateResouce;
+    AbstractedLock.ReleaseLock();
+  }
+};
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+ All well, but this does not compile. Since `GetResourceValue()` is marked as `const` and it is modifying member variables.
+ `AbstractedLock.LockShared()` when called is going to make some changes to the underlying structure which breaks const.
 
-### Jekyll Themes
+Now you could either not mark `GetResourceValue()` as `const`, but then the intent of not modifying the members through this functions is lost.
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/gauraVsehgaL/mutable_use_case/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+Or you could mark `AbstractedLock` as `mutable`.
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+```
+mutable Lock AbstractedLock;
