@@ -1,1 +1,6 @@
 theme: jekyll-theme-minimal
+title:	               'Mutable Use Case in C++'
+description:	       'Example of mutable keyword in C++'
+author:                'Gaurav Sehgal'
+twitter:
+    username:          gaurav__sehgal
